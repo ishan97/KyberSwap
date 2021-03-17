@@ -32,6 +32,8 @@ const TransferForm = (props) => {
     errorDestAddr.push(value)
   })
 
+  const destAddressDomainStatus = props.destAddressDomainStatus
+
   const sourceErrors = errorSource.map((value, index) => {
     return <div className={"exchange__error-item"} key={index}>{value}</div>
   });
@@ -122,7 +124,7 @@ const TransferForm = (props) => {
             </div>
 
             <div className={"exchange-content__item--wrapper"}>
-              <div className={"exchange-item-label"}>{props.translate("transaction.address") || "To Address"}:</div>
+              <div className={"exchange-item-label"}>{props.translate("transaction.address_or_domain") || "To Address or domain"}:</div>
               <div className={`exchange-content__item exchange-content__item--right theme__background-4 select-token ${isErrorDestAddr ? "error" : ""}`}>
                 <div className={`input-div-content`}>
                   <div className="exchange-content__input-container exchange-content__input-container--to exchange-content__transfer-addr">
@@ -131,6 +133,7 @@ const TransferForm = (props) => {
                         className={`exchange-content__input theme__background-4 theme__text-4 exchange-content__input-address ${props.global.isOnMobile && "p-l-50px" }`}
                         value={props.input.destAddress.value}
                         onChange={props.input.destAddress.onChange}
+                        disabled={props.destAddressInputDisabled}
                         placeholder="0x0de..."
                         onFocus={props.onFocusAddr}
                         onBlur={props.onBlur}
@@ -140,6 +143,9 @@ const TransferForm = (props) => {
                   </div>
                 </div>
               </div>
+              {destAddressDomainStatus &&
+                <div style={{color:"#5a5e67", fontSize:"12px", fontWeight:400, margin:"10px 0 20px"}}>{destAddressDomainStatus}</div>
+              }
 
               {isErrorDestAddr &&
                 <div className={"exchange__error"}>{destErrors}</div>

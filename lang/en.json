@@ -113,6 +113,7 @@
     "no_pedding_tx": "No pending transaction",
     "rate_info": "Rates might be changed during settlement. <br/>You can indicate your\nminimum rate by clicking \"Advanced\"",
     "address": "To Address",
+    "address_or_domain": "To Address or domain",
     "slippage_tip": "Rate may change. You can change maximum slippage rate by adjusting\nmin rate in advanced option",
     "max_slippage": "With maximum ${percent}% slippage",
     "included": "Included",

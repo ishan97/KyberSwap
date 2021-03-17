@@ -17,6 +17,8 @@ import { debounce } from 'underscore'
 import BLOCKCHAIN_INFO from "../../../../env";
 import constants from "../../services/constants"
 import { TransferAccount } from "../../containers/Transfer"
+const { default: Resolution } = require('@unstoppabledomains/resolution');
+const resolution = new Resolution();
 
 @connect((store) => {
   const transfer = store.transfer;
@@ -101,11 +103,44 @@ class Transfer extends React.Component {
   lazyUpdateValidateSourceAmount = debounce(this.validateSourceAmount, 500)
   lazyEstimateGas = debounce(this.dispatchEstimateGas, 500)
 
+  getAddressFromDomain = (domain, currency) => {
+    resolution
+      .addr(domain, currency)
+      .then((address) => {
+        this.setState({
+          destAddress: address,
+          destAddressInputDisabled: false,
+          destAddressDomainStatus: `${domain} resolved to ${address}`,
+        });
+      })
+      .catch(() => {
+        this.props.transfer.errors.destAddress.error = `No records found for ${domain}`;
+        this.setState({
+          destAddressInputDisabled: false,
+          destAddressDomainStatus: '',
+        });
+      });
+  };
+  
   onAddressReceiveChange = (event) => {
     var value = event.target.value;
-    this.setState({ destAddress: value })
-    this.props.dispatch(transferActions.clearTransferError())
+    this.setState({destAddress: value, destAddressDomainStatus: ''});
+    if (value.includes('.crypto')) {
+      this.setResolvingStatus(value)
+      this.getAddressFromDomain(value, 'ETH');
+    } else if (value.includes('.zil')) {
+      this.setResolvingStatus(value)
+      this.getAddressFromDomain(value, 'ZIL');
+    }
+    this.props.dispatch(transferActions.clearTransferError());
   };
+
+  setResolvingStatus = (value) => {
+    this.setState({
+      destAddressInputDisabled: true,
+      destAddressDomainStatus: `${value} is resolving`,
+    });
+  }
 
   onAmountChange = (event, amount) => {
     var value = amount ? amount : event.target.value;
@@ -308,6 +343,8 @@ class Transfer extends React.Component {
           tokenSymbol={this.props.transfer.tokenSymbol}
           tokenTransferSelect={tokenTransferSelect}
           input={input}
+          destAddressInputDisabled={this.state.destAddressInputDisabled}
+          destAddressDomainStatus={this.state.destAddressDomainStatus}
           errors={errors}
           translate={this.props.translate}
           onBlur={this.onBlur}
